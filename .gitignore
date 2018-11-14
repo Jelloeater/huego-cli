@@ -23,3 +23,5 @@ ehthumbs_vista.db
 .idea/
 
 /.env
+/settings/settings.go
+/src/settings/settings.go
