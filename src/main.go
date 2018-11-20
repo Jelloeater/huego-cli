@@ -7,7 +7,6 @@ import (
 	"log"
 	"./settings"
 	"github.com/Jeffail/gabs"
-	"fmt"
 )
 
 
@@ -31,25 +30,30 @@ func main() {
 
 	jsonParsed, _ := gabs.ParseJSON(LightHelpers{}.GetLightsRawJSON_bytes())
 
-	//jsonParsed, _ := gabs.ParseJSON([]byte(`{"array":[ {"value":1}, {"value":2}, {"value":3} ]}`))
-	fmt.Println(jsonParsed.Path("lights.1.state.on").String())
-	fmt.Println(jsonParsed.Path("lights.1.name").String())
+	//log.Println(jsonParsed.Path("lights.1.state.on").String())
+	//log.Println(jsonParsed.Path("lights.1.name").String())
 
-	x, err := jsonParsed.Path("lights").ArrayCount()
-	_ = err
-	fmt.Println(x)
-	fmt.Println(jsonParsed.Path("lights").String())
+	//x, err := jsonParsed.Path("lights").ArrayCount()
+	//_ = err
+	//log.Println(x)
+	//log.Println(jsonParsed.Path("lights").String())
 
-	lights2 := jsonParsed.Search("lights").Data()
+	//lights2 := jsonParsed.Search("lights").Data()
+	//
+	//println(lights2)
 
-	println(lights2)
-	//children, _ := jsonParsed.S("lights").Children()
+	// S is shorthand for Search
+	light_list, _ := jsonParsed.Search("lights").Children()
+	for _, i := range light_list {
+		log.Println(i.String())
+		x:= i.Search("name")
+		y := i.Search("state").Search("on")
 
-	//	for _, child := range children {
-	//		fmt.Println(child.Data())
-	//		child.ArrayCount()
-	//	}
-	//}
+
+		log.Println(x)
+		log.Println(y)
+
+	}
 
 
 }
