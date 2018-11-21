@@ -91,15 +91,6 @@ func main() {
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		if c.Bool("debug") {
-			log.SetLevel(5)
-		}else {
-			log.SetLevel(3) // Warn Level}
-		}
-		return nil
-	}
-
 	app.Commands = []cli.Command{
 		{
 			UseShortOptionHandling:true,
@@ -110,9 +101,19 @@ func main() {
 				Light{}.PrintLightLight()
 				return nil
 			},
-
 		},
 	}
+
+	app.Action = func(c *cli.Context) {
+		if c.Bool("debug") {
+			log.SetLevel(5)
+			println("Logging: DEBUG ENABLED")
+		}else {
+			log.SetLevel(3) // Warn Level}
+			println("Logging: Warn only")
+		}
+	}
+
 
 	err := app.Run(os.Args)
 	if err != nil {
