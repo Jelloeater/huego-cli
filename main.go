@@ -37,7 +37,7 @@ func main() {
 			Aliases: []string{"l"},
 			Usage:   "print list of lights",
 			Action: func(c *cli.Context) error {
-				api.Lights{}.PrintLightLight()
+				api.Lights{}.PrintLightTable()
 				return nil
 			},
 		},
