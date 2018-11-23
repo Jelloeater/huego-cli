@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli"
 
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -38,6 +39,31 @@ func main() {
 			Usage:   "print list of lights",
 			Action: func(c *cli.Context) error {
 				api.Lights{}.PrintLightTable()
+				return nil
+			},
+		},
+		{
+			UseShortOptionHandling: true,
+			Name:    "turn_on",
+			Aliases: []string{"on"},
+			Usage:   "turn on a light",
+			Action: func(c *cli.Context) error {
+				arg, _ := strconv.Atoi(c.Args().First()) // Converts first arg from string to int
+				l := new(api.Light).GetLight(arg)        // Create new light object
+				l.TurnOn()
+				return nil
+			},
+		},
+		{
+			UseShortOptionHandling: true,
+			Name:    "turn_off",
+			Aliases: []string{"off"},
+			Usage:   "turn off a light",
+			Action: func(c *cli.Context) error {
+				arg, _ := strconv.Atoi(c.Args().Get(0))
+				x := api.Light{}
+				x = x.GetLight(arg)
+				x.TurnOff()
 				return nil
 			},
 		},

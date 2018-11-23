@@ -28,7 +28,7 @@ func TestTurnOn(t *testing.T) {
 
 func TestTurnOff(t *testing.T) {
 	newLight := api.Light{}
-	newLight.GetLight(1)
+	newLight = newLight.GetLight(1)
 	newLight.TurnOff()
 
 }

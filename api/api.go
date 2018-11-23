@@ -2,10 +2,11 @@ package api
 
 import (
 	"../settings"
+	"encoding/json"
 	"github.com/Jeffail/gabs"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/levigross/grequests"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 )
@@ -31,7 +32,7 @@ func (l *Light) NewLight(Id_In int, Name_In string, State_In bool) Light {
 
 //GetLight Loads a light object with data
 func (l *Light) GetLight(Id_in int) Light {
-	singleLightJson, _ := gabs.ParseJSON(ApiHelpers{}.GetApiLightsJSON(Id_in)) // Pulls in API JSON
+	singleLightJson, _ := gabs.ParseJSON(ApiHelpers{}.GetApiSingleLightJSON(Id_in)) // Pulls in API JSON
 	log.Println(singleLightJson.String())
 
 	newLight := new(Light)
@@ -43,26 +44,30 @@ func (l *Light) GetLight(Id_in int) Light {
 }
 
 func (l *Light) TurnOn() *grequests.Response {
-	ro := grequests.RequestOptions{
-		Params: map[string]string{"on": "true"},
-	}
+	in, _ := json.Marshal(map[string]bool{"on": true}) // Create a map for the body submission
+	ro := grequests.RequestOptions{JSON: in}
 	reqURL := settings.Base_url + "/lights/" + strconv.Itoa(l.id) + "/state"
 	resp, err := grequests.Put(reqURL, &ro)
+	// API JSON body parser *IS* case sensitive, you cannot marshal structs, as
+	// their values need to be uppercase to be public, and this causes an issue with the Hue
+	// API requests ... -_-
+
 	if err != nil {
 		log.Fatalln("Unable to make request: ", err)
 	}
+	log.Info(resp.String())
 	return resp
 }
 
 func (l *Light) TurnOff() *grequests.Response {
-	ro := grequests.RequestOptions{
-		Params: map[string]string{"on": "false"},
-	}
+	in, _ := json.Marshal(map[string]bool{"on": false})
+	ro := grequests.RequestOptions{JSON: in}
 	reqURL := settings.Base_url + "/lights/" + strconv.Itoa(l.id) + "/state"
 	resp, err := grequests.Put(reqURL, &ro)
 	if err != nil {
 		log.Fatalln("Unable to make request: ", err)
 	}
+	log.Info(resp.String())
 	return resp
 }
 
@@ -112,7 +117,7 @@ func (ApiHelpers) GetApiJSON() []byte {
 	return resp.Bytes()
 }
 
-func (ApiHelpers) GetApiLightsJSON(id int) []byte {
+func (ApiHelpers) GetApiSingleLightJSON(id int) []byte {
 	reqURL := settings.Base_url + "/lights/" + strconv.Itoa(id)
 	resp, err := grequests.Get(reqURL, nil)
 	if err != nil {
