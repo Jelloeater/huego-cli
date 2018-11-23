@@ -1,19 +1,23 @@
 package main
 
 import (
-	"github.com/levigross/grequests"
-	log "github.com/sirupsen/logrus"
+	"./settings"
 	"github.com/Jeffail/gabs"
 	"github.com/jedib0t/go-pretty/table"
+	"github.com/levigross/grequests"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-	"./settings"
 
-	"strconv"
 	"os"
+	"strconv"
 )
 
+type Lights struct {
+	Light
+}
+
 type Light struct {
-	Name string
+	Name  string
 	State bool
 }
 
@@ -25,7 +29,7 @@ func (l *Light) NewLight(NameIn string, State_In bool) Light {
 	return *m
 }
 
-func (l *Light) GetListOfLights()[]Light{
+func (l *Lights) GetListOfLights() []Light {
 	var LightObjList []Light
 	jsonParsed, _ := gabs.ParseJSON(ApiHelpers{}.GetLightsRawJSON_bytes()) // Pulls in API JSON
 	lightListJSON, _ := jsonParsed.Search("lights").Children()             // Searches JSON tree for lights array
@@ -41,27 +45,27 @@ func (l *Light) GetListOfLights()[]Light{
 	return LightObjList
 }
 
-func (l *Light) PrintListOfLights(){
+func (l *Lights) PrintListOfLights() {
 
 	light_list := l.GetListOfLights()
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"Name", "State"})
 
-	for _, i := range light_list{
-		t.AppendRow(table.Row{i.Name,i.State})
+	for _, i := range light_list {
+		t.AppendRow(table.Row{i.Name, i.State})
 	}
 	t.Render()
 }
-func (Light)PrintLightLight(){
-	lightObj := Light{}
+func (Lights) PrintLightLight() {
+	lightObj := Lights{}
 	lightObj.PrintListOfLights()
 }
 
 type ApiHelpers struct {
 }
 
-func (ApiHelpers)GetLightsRawJSON_bytes() []byte{
+func (ApiHelpers) GetLightsRawJSON_bytes() []byte {
 	resp, err := grequests.Get(settings.Base_url+"/", nil)
 	if err != nil {
 		log.Fatalln("Unable to make request: ", err)
@@ -69,7 +73,7 @@ func (ApiHelpers)GetLightsRawJSON_bytes() []byte{
 	return resp.Bytes()
 }
 
-func (a *ApiHelpers)GetLightsRawJSON_String()string{
+func (a *ApiHelpers) GetLightsRawJSON_String() string {
 	return string(a.GetLightsRawJSON_bytes())
 }
 
@@ -83,44 +87,48 @@ func main() {
 	app.HideHelp = false
 	app.EnableBashCompletion = true
 
-	app.Flags = []cli.Flag{
+	// Setup flags here
+	var DebugMode bool
+	flags := []cli.Flag{
 		cli.BoolFlag{
 
-			Name:  "debug",
-			Usage: "enable debug mode",
+			Name:        "debug, d",
+			Usage:       "enable debug mode",
+			Destination: &DebugMode,
 		},
 	}
 
+	// Commands to be run go here, after parsing variables
 	app.Commands = []cli.Command{
 		{
-			UseShortOptionHandling:true,
+			UseShortOptionHandling: true,
 			Name:    "list",
 			Aliases: []string{"l"},
 			Usage:   "print list of lights",
-			Action:  func(c *cli.Context) error {
-				Light{}.PrintLightLight()
+			Action: func(c *cli.Context) error {
+				Lights{}.PrintLightLight()
 				return nil
 			},
 		},
 	}
 
-	app.Action = func(c *cli.Context) {
-		if c.Bool("debug") {
+	app.Flags = flags // Assign flags via parse right before we start work
+	app.Before = func(c *cli.Context) error {
+		// Actions to run before running parsed commands
+		if DebugMode {
 			log.SetLevel(5)
-			println("Logging: DEBUG ENABLED")
-		}else {
-			log.SetLevel(3) // Warn Level}
-			println("Logging: Warn only")
+			log.Info("Debug Mode")
+		} else {
+			log.SetLevel(3)
+			log.Warn("Normal Mode")
 		}
+		return nil
 	}
-
-
+	// Parse Commands and flags here, order of commands matters "-d l" != "l -d"
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//if os.Args != nil{log.Error("DA END")}
-
-
+	log.Info("EOP")
 }
