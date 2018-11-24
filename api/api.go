@@ -74,13 +74,15 @@ func (l *Light) TurnOff() *grequests.Response {
 func (l *Lights) GetListOfLights() []Light {
 	var LightObjList []Light
 	jsonParsed, _ := gabs.ParseJSON(ApiHelpers{}.GetApiJSON()) // Pulls in API JSON
-	lightListJSON, _ := jsonParsed.Search("lights").Children() // Searches JSON tree for lights array
+	lightListMap, _ := jsonParsed.Search("lights").ChildrenMap()
+	// Searches JSON tree for lights object list and maps them to "string":object pairs
 
-	for index, single_light := range lightListJSON {
-		log.Println(single_light.String())
-		nameJson := single_light.Search("name").String()
-		idJson := index + 1
-		stateJson, _ := strconv.ParseBool(single_light.Search("state").Search("on").String())
+	log.Info(lightListMap)
+	for JsonObjectName, singleLightObject := range lightListMap {
+		log.Println(singleLightObject.String())
+		nameJson := singleLightObject.Search("name").String()
+		idJson, _ := strconv.Atoi(JsonObjectName)
+		stateJson, _ := strconv.ParseBool(singleLightObject.Search("state").Search("on").String())
 
 		singleLightObj := l.NewLight(idJson, nameJson, stateJson)
 		LightObjList = append(LightObjList, singleLightObj)

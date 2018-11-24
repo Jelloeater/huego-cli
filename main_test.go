@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestTable(t *testing.T) {
+func TestGetLights(t *testing.T) {
 
 	l := api.Lights{}
 	x := l.GetListOfLights()
@@ -20,15 +20,19 @@ func TestPrintTable(t *testing.T) {
 }
 
 func TestTurnOn(t *testing.T) {
+	new(api.Lights).PrintLightTable()
 	newLight := api.Light{}
 	newLight = newLight.GetLight(1)
 	newLight.TurnOn()
+	new(api.Lights).PrintLightTable()
 
 }
 
 func TestTurnOff(t *testing.T) {
+	new(api.Lights).PrintLightTable()
 	newLight := api.Light{}
 	newLight = newLight.GetLight(1)
 	newLight.TurnOff()
+	new(api.Lights).PrintLightTable()
 
 }
