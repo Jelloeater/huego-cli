@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Lights struct {
@@ -33,7 +34,10 @@ func (l *Light) NewLight(Id_In int, Name_In string, State_In bool) Light {
 //GetLight Loads a light object with data
 func (l *Light) GetLight(Id_in int) Light {
 	singleLightJson, _ := gabs.ParseJSON(ApiHelpers{}.GetApiSingleLightJSON(Id_in)) // Pulls in API JSON
-	log.Println(singleLightJson.String())
+	log.Info(singleLightJson.String())
+	if strings.Contains(singleLightJson.String(), "not available") { // Check to make sure light actually exists
+		log.Fatal("Light not found ID= " + strconv.Itoa(Id_in))
+	}
 
 	newLight := new(Light)
 	newLight.id = Id_in

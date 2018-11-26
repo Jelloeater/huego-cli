@@ -48,8 +48,12 @@ func main() {
 			Aliases: []string{"on"},
 			Usage:   "turn on a light",
 			Action: func(c *cli.Context) error {
-				arg, _ := strconv.Atoi(c.Args().First()) // Converts first arg from string to int
-				l := new(api.Light).GetLight(arg)        // Create new light object
+				arg, err := strconv.Atoi(c.Args().First()) // Converts first arg from string to int
+				if err != nil {
+					log.Error("Invalid Input")
+					log.Fatal(err)
+				}
+				l := new(api.Light).GetLight(arg) // Create new light object
 				l.TurnOn()
 				return nil
 			},
@@ -60,7 +64,11 @@ func main() {
 			Aliases: []string{"off"},
 			Usage:   "turn off a light",
 			Action: func(c *cli.Context) error {
-				arg, _ := strconv.Atoi(c.Args().Get(0))
+				arg, err := strconv.Atoi(c.Args().Get(0))
+				if err != nil {
+					log.Error("Invalid Input")
+					log.Fatal(err)
+				}
 				x := api.Light{}
 				x = x.GetLight(arg)
 				x.TurnOff()
