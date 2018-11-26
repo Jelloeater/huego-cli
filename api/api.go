@@ -8,6 +8,7 @@ import (
 	"github.com/levigross/grequests"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -95,8 +96,10 @@ func (l *Lights) GetListOfLights() []Light {
 }
 
 func (l *Lights) generateLightTable() {
-
 	light_list := l.GetListOfLights()
+
+	sort.Slice(light_list, func(i, j int) bool { return light_list[i].id < light_list[j].id })
+
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"id", "name", "state"})
