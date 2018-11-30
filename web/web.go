@@ -5,6 +5,7 @@ import (
 	"../api"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"strings"
 )
 
 func StartServer() {
@@ -14,10 +15,22 @@ func StartServer() {
 		<html>
 		<body>`
 		body := new(api.Lights).GenerateLightTableHTML()
+		lightList := new(api.Lights).GetListOfLights()
 
+		var buttonList []string
+
+		for _, v := range lightList {
+			buttonTemplate := `<form action="" method="post">
+    		<input type="submit" name="nameField" value="nameField" />
+			</form>`
+			singleButton := strings.Replace(buttonTemplate, "nameField", v.Name(), -1)
+			buttonList = append(buttonList, singleButton)
+		}
+
+		buttonBody := strings.Join(buttonList, "")
 		footer := `</body>
 		</html>`
-		html := header + body + footer
+		html := header + body + buttonBody + footer
 		return c.HTML(http.StatusOK, html)
 		//https://echo.labstack.com/guide/request
 	})

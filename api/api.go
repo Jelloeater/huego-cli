@@ -23,6 +23,10 @@ type Light struct {
 	state bool
 }
 
+func (l *Light) Name() string {
+	return l.name
+}
+
 //NewLight Constructor for new light objects
 func (l *Light) NewLight(Id_In int, Name_In string, State_In bool) Light {
 	newLight := new(Light)
