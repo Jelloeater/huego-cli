@@ -95,7 +95,7 @@ func (l *Lights) GetListOfLights() []Light {
 	return LightObjList
 }
 
-func (l *Lights) generateLightTable() {
+func (l *Lights) generateLightTable() table.Writer {
 	light_list := l.GetListOfLights()
 
 	sort.Slice(light_list, func(i, j int) bool { return light_list[i].id < light_list[j].id })
@@ -107,12 +107,20 @@ func (l *Lights) generateLightTable() {
 	for _, i := range light_list {
 		t.AppendRow(table.Row{i.id, i.name, i.state})
 	}
-	t.Render()
+	return t
+}
+
+func (l *Lights) GenerateLightTableText() {
+	l.generateLightTable().Render()
+}
+
+func (l *Lights) GenerateLightTableHTML() string {
+	return l.generateLightTable().RenderHTML()
 }
 
 func (Lights) PrintLightTable() {
 	lightObj := Lights{}
-	lightObj.generateLightTable()
+	lightObj.GenerateLightTableText()
 }
 
 type ApiHelpers struct {

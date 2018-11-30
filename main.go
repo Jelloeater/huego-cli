@@ -2,9 +2,9 @@ package main
 
 import (
 	"./api"
+	"./web"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
-
 	"os"
 	"strconv"
 )
@@ -32,6 +32,16 @@ func main() {
 
 	// Commands to be run go here, after parsing variables
 	app.Commands = []cli.Command{
+		{
+			UseShortOptionHandling: true,
+			Name:    "web",
+			Aliases: []string{"w"},
+			Usage:   "start web GUI",
+			Action: func(c *cli.Context) error {
+				web.StartServer()
+				return nil
+			},
+		},
 		{
 			UseShortOptionHandling: true,
 			Name:    "list",
