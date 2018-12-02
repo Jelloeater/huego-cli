@@ -19,25 +19,34 @@ type TemplateRenderer struct {
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-
-	// Add global methods if data is a map
-	if viewContext, isMap := data.(map[string]interface{}); isMap {
-		viewContext["buttoncall"] = GenerateButtons()
-	}
-
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
 func GenerateButtons() string {
-	lightList := new(api.Lights).GetListOfLights()
+	lightList := new(api.Lights).GenerateSortedLightList()
 	var buttonList []string
 
 	for _, v := range lightList {
-		buttonTemplate := `<form action="/light/on/id" method="post">
-    		<input type="submit" name="nameField" value="nameField" />
+		buttonTemplateOn := `<form action="/light/on/$id" method="post">
+    		<input type="submit" name=$name value=$value />
 			</form>`
-		singleButton := strings.Replace(buttonTemplate, "nameField", v.Name(), 1)
-		buttonList = append(buttonList, singleButton)
+		buttonTemplateOff := `<form action="/light/off/$id" method="post">
+    		<input type="submit" name=$name value=$value />
+			</form>`
+
+		nameLabel := v.Name()[1 : len(v.Name())-1] // Remove quote from name
+		onlabel := "\"" + nameLabel + " On" + "\"" // Re-add quotes back for whole string
+		offlabel := "\"" + nameLabel + " Off" + "\""
+
+		singleButtonOn := strings.Replace(buttonTemplateOn, "$name", onlabel, 1)
+		singleButtonOn = strings.Replace(singleButtonOn, "$value", onlabel, 1)
+		singleButtonOn = strings.Replace(singleButtonOn, "$id", strconv.Itoa(v.Id()), 1)
+		singleButtonOff := strings.Replace(buttonTemplateOff, "$name", offlabel, 1)
+		singleButtonOff = strings.Replace(buttonTemplateOff, "$id", strconv.Itoa(v.Id()), 1)
+		singleButtonOff = strings.Replace(singleButtonOff, "$value", offlabel, 1)
+
+		buttonList = append(buttonList, singleButtonOn)
+		buttonList = append(buttonList, singleButtonOff)
 	}
 
 	return strings.Join(buttonList, "")
@@ -47,7 +56,7 @@ func StartServer() {
 	e := echo.New()
 
 	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("views/*.html")),
+		templates: template.Must(template.ParseGlob("web/views/*.html")),
 	}
 	e.Renderer = renderer
 

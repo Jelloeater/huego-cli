@@ -8,7 +8,7 @@ import (
 func TestGetLights(t *testing.T) {
 
 	l := api.Lights{}
-	x := l.GetListOfLights()
+	x := l.GetAllLightObjects()
 	if x == nil {
 		t.Error()
 	}

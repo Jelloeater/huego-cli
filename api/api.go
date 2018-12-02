@@ -23,6 +23,10 @@ type Light struct {
 	state bool
 }
 
+func (l *Light) Id() int {
+	return l.id
+}
+
 func (l *Light) Name() string {
 	return l.name
 }
@@ -80,7 +84,7 @@ func (l *Light) TurnOff() *grequests.Response {
 	return resp
 }
 
-func (l *Lights) GetListOfLights() []Light {
+func (l *Lights) GetAllLightObjects() []Light {
 	var LightObjList []Light
 	jsonParsed, _ := gabs.ParseJSON(ApiHelpers{}.GetApiJSON()) // Pulls in API JSON
 	lightListMap, _ := jsonParsed.Search("lights").ChildrenMap()
@@ -99,11 +103,14 @@ func (l *Lights) GetListOfLights() []Light {
 	return LightObjList
 }
 
-func (l *Lights) generateLightTable() table.Writer {
-	light_list := l.GetListOfLights()
-
+func (l *Lights) GenerateSortedLightList() []Light {
+	light_list := l.GetAllLightObjects()
 	sort.Slice(light_list, func(i, j int) bool { return light_list[i].id < light_list[j].id })
+	return light_list
+}
 
+func (l *Lights) generateLightTable() table.Writer {
+	light_list := l.GenerateSortedLightList()
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
 	t.AppendHeader(table.Row{"id", "name", "state"})
