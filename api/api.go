@@ -114,8 +114,8 @@ func (l *Lights) generateLightTable() table.Writer {
 	return t
 }
 
-func (l *Lights) GenerateLightTableText() {
-	l.generateLightTable().Render()
+func (l *Lights) GenerateLightTableMarkdown() string {
+	return l.generateLightTable().RenderMarkdown()
 }
 
 func (l *Lights) GenerateLightTableHTML() string {
@@ -124,7 +124,7 @@ func (l *Lights) GenerateLightTableHTML() string {
 
 func (Lights) PrintLightTable() {
 	lightObj := Lights{}
-	lightObj.GenerateLightTableText()
+	lightObj.generateLightTable().Render()
 }
 
 type ApiHelpers struct {
