@@ -1,16 +1,17 @@
 package api
 
 import (
-	"../settings"
 	"encoding/json"
-	"github.com/Jeffail/gabs"
-	"github.com/jedib0t/go-pretty/table"
-	"github.com/levigross/grequests"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"../settings"
+	"github.com/Jeffail/gabs"
+	"github.com/jedib0t/go-pretty/table"
+	"github.com/levigross/grequests"
+	log "github.com/sirupsen/logrus"
 )
 
 type Lights struct {
@@ -31,7 +32,7 @@ func (l *Light) Name() string {
 	return l.name
 }
 
-//NewLight Constructor for new light objects
+//NewLight Constructor for new light firstobjects
 func (l *Light) NewLight(Id_In int, Name_In string, State_In bool) Light {
 	newLight := new(Light)
 	newLight.id = Id_In
@@ -87,7 +88,7 @@ func (l *Light) TurnOff() *grequests.Response {
 func (l *Lights) GetAllLightObjects() []Light {
 	var LightObjList []Light
 	jsonParsed, _ := gabs.ParseJSON(ApiHelpers{}.GetApiJSON()) // Pulls in API JSON
-	lightListMap, _ := jsonParsed.Search("lights").ChildrenMap()
+	lightListMap := jsonParsed.Search("lights").ChildrenMap()
 	// Searches JSON tree for lights object list and maps them to "string":object pairs
 
 	log.Info(lightListMap)
